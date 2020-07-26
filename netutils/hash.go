@@ -3,6 +3,8 @@ package netutils
 import (
 	"crypto/sha256"
 	"crypto/sha512"
+	"encoding/hex"
+	"fmt"
 	"hash"
 	"strings"
 
@@ -37,5 +39,13 @@ func NewHashComparator(hsx string) *HashComparator {
 	if strings.HasPrefix(hsx, "sha3-256:") {
 		return &HashComparator{H: sha3.New256(), S: strings.TrimPrefix(hsx, "sha3-512:")}
 	}
-	return &HashComparator{H: sha256.New(), S: strings.TrimPrefix(hsx, "sha256:")}
+	return &HashComparator{H: sha256.New(), S: hsx}
+}
+
+// IsMatch hash is matched
+func (hc *HashComparator) IsMatch() error {
+	if s := hex.EncodeToString(hc.H.Sum(nil)); s != hc.S {
+		return fmt.Errorf("The calculated hash value %s is different from %s", s, hc.S)
+	}
+	return nil
 }

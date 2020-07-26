@@ -4,7 +4,6 @@ import (
 	"crypto/tls"
 	"encoding/hex"
 	"errors"
-	"fmt"
 	"io"
 	"mime"
 	"net/http"
@@ -149,8 +148,8 @@ func (e *Executor) Get(rawurl, hsx string) (string, error) {
 		return "", err
 	}
 	if hc != nil {
-		if hsx2 := hex.EncodeToString(hc.H.Sum(nil)); hsx2 != hc.S {
-			return "", fmt.Errorf("The calculated hash value %s is different from %s", hsx2, hc.S)
+		if err := hc.IsMatch(); err != nil {
+			return "", err
 		}
 	}
 	return fullname, nil
