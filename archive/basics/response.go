@@ -19,7 +19,15 @@ type File struct {
 	Executabled bool   `json:"executabled,omitempty"` // when mark executabled. a script create under windows can run linux
 }
 
-var fileexecutor = netutils.NewExecutor()
+func outTempDir() string {
+	if bulkoutdir := os.Getenv("BULK_DOWNLOAD_OUTDIR"); len(bulkoutdir) != 0 {
+		return bulkoutdir
+
+	}
+	return os.ExpandEnv("${TEMP}/bulk_download_out")
+}
+
+var fileexecutor = netutils.NewExecutor(outTempDir())
 
 // Prepare check file
 func (file *File) Prepare() error {

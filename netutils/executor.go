@@ -50,7 +50,7 @@ func isTrue(s string) bool {
 }
 
 // NewExecutor new executor
-func NewExecutor() *Executor {
+func NewExecutor(outdir string) *Executor {
 	ps, err := ResolveProxy()
 	transport := &http.Transport{}
 	if err == nil {
@@ -62,14 +62,10 @@ func NewExecutor() *Executor {
 			transport.Proxy = http.ProxyURL(u)
 		}
 	}
-	bkznetdir := os.Getenv("BKZ_DOWNLOAD_OUTDIR")
-	if len(bkznetdir) == 0 {
-		bkznetdir = os.ExpandEnv("${TEMP}/bkz_download_out")
-	}
-	_ = os.MkdirAll(bkznetdir, 0755)
+	_ = os.MkdirAll(outdir, 0755)
 	transport.TLSClientConfig = &tls.Config{InsecureSkipVerify: isTrue(os.Getenv("BKZ_INSECURE_TLS"))} //set ssl
 	return &Executor{
-		OutDir: bkznetdir,
+		OutDir: outdir,
 		client: &http.Client{
 			Transport: transport,
 		},
