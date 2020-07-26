@@ -14,7 +14,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/baulk/bluk/progressbar"
+	"github.com/baulk/bulk/progressbar"
 )
 
 // error

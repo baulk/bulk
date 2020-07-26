@@ -6,7 +6,7 @@ import (
 	"path"
 	"path/filepath"
 
-	"github.com/baulk/bluk/netutils"
+	"github.com/baulk/bulk/netutils"
 )
 
 // File compress file

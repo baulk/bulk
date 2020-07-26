@@ -7,8 +7,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/baulk/bluk/archive/basics"
-	"github.com/baulk/bluk/base"
+	"github.com/baulk/bulk/archive/basics"
+	"github.com/baulk/bulk/base"
 	"github.com/klauspost/compress/zip"
 	"golang.org/x/text/encoding"
 )

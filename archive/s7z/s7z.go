@@ -5,9 +5,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/baulk/bluk/archive/basics"
-	"github.com/baulk/bluk/base"
-	"github.com/baulk/bluk/go7z"
+	"github.com/baulk/bulk/archive/basics"
+	"github.com/baulk/bulk/base"
+	"github.com/baulk/bulk/go7z"
 )
 
 // Extractor type
