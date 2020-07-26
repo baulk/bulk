@@ -5,7 +5,10 @@ go 1.14
 require (
 	github.com/andybalholm/brotli v1.0.0
 	github.com/dsnet/compress v0.0.1
+	github.com/frankban/quicktest v1.10.0 // indirect
+	github.com/google/go-cmp v0.5.1 // indirect
 	github.com/klauspost/compress v1.10.10
+	github.com/kr/text v0.2.0 // indirect
 	github.com/mattn/go-isatty v0.0.12
 	github.com/mattn/go-runewidth v0.0.9
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db

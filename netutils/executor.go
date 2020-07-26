@@ -80,7 +80,7 @@ func resolveFileName(resp *http.Response, rawurl string) string {
 	if disp := resp.Header.Get("Content-Disposition"); disp != "" {
 		if _, params, err := mime.ParseMediaType(disp); err == nil {
 			if filename := params["filename"]; len(filename) > 0 {
-				return filename
+				return path.Base(filename)
 			}
 		}
 	}
@@ -124,7 +124,7 @@ func (e *Executor) Get(rawurl, hsx string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	req.Header.Set("User-Agent", "bkz/1.0")
+	req.Header.Set("User-Agent", "bulk/1.0")
 	resp, err := e.client.Do(req)
 	if err != nil {
 		return "", err

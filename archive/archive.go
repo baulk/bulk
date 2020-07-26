@@ -7,8 +7,3 @@ type Extractor interface {
 	Extract(destination string) error
 	Close() error
 }
-
-// Archiver todo
-type Archiver interface {
-	Close() error
-}
