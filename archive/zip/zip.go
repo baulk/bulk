@@ -62,7 +62,7 @@ func NewExtractor(fd *os.File, es *basics.ExtractSetting) (*Extractor, error) {
 	zipRegisterDecompressor(zr)
 	e := &Extractor{fd: fd, zr: zr, es: es}
 	if ens := os.Getenv("ZIP_ENCODING"); len(ens) != 0 {
-		e.initializeEncoder(ens)
+		es.FilenameEncoding = ens
 	}
 	return e, nil
 }
@@ -107,7 +107,8 @@ func (e *Extractor) extractFile(p, destination string, zf *zip.File) error {
 // Extract file
 func (e *Extractor) Extract(destination string) error {
 	for _, file := range e.zr.File {
-		p := filepath.Join(destination, file.Name)
+		name := e.DecodeFileName(file.FileHeader)
+		p := filepath.Join(destination, name)
 		if !basics.IsRelativePath(destination, p) {
 			if e.es.IgnoreError {
 				continue
@@ -124,7 +125,7 @@ func (e *Extractor) Extract(destination string) error {
 			continue
 		}
 		if e.es.OnEntry != nil {
-			if err := e.es.OnEntry(file.Name, fi); err != nil {
+			if err := e.es.OnEntry(name, fi); err != nil {
 				return err
 			}
 		}

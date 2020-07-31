@@ -10,7 +10,7 @@ type ExtractSetting struct {
 	OverwriteExisting bool
 	MkdirAll          bool
 	IgnoreError       bool
-	Encoding          string
+	FilenameEncoding  string
 	Password          string
 	PassworldCallback func() string
 	OnEntry           func(name string, fi os.FileInfo) error
