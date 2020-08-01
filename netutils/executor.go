@@ -13,6 +13,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/baulk/bulk/base"
 	"github.com/baulk/bulk/progressbar"
 )
 
@@ -62,7 +63,7 @@ func NewExecutor(outdir string) *Executor {
 		}
 	}
 	_ = os.MkdirAll(outdir, 0755)
-	transport.TLSClientConfig = &tls.Config{InsecureSkipVerify: isTrue(os.Getenv("BKZ_INSECURE_TLS"))} //set ssl
+	transport.TLSClientConfig = &tls.Config{InsecureSkipVerify: isTrue(os.Getenv("BULK_INSECURE_TLS"))} //set ssl
 	return &Executor{
 		OutDir: outdir,
 		client: &http.Client{
@@ -75,7 +76,9 @@ func resolveFileName(resp *http.Response, rawurl string) string {
 	if disp := resp.Header.Get("Content-Disposition"); disp != "" {
 		if _, params, err := mime.ParseMediaType(disp); err == nil {
 			if filename := params["filename"]; len(filename) > 0 {
-				return path.Base(filename)
+				if !base.PathIsSlipVulnerability(filename) {
+					return path.Base(filename)
+				}
 			}
 		}
 	}
@@ -89,14 +92,15 @@ func resolveFileName(resp *http.Response, rawurl string) string {
 	return "index.html"
 }
 
-func isCachedFile(fullname, hsx string) bool {
-	if hsx == "" {
+// IsAlreadyExistsFile file exists
+func IsAlreadyExistsFile(fullname, checksum string) bool {
+	if checksum == "" {
 		return false
 	}
 	if _, err := os.Stat(fullname); err != nil {
 		return false
 	}
-	hc := NewHashComparator(hsx)
+	hc := NewHashComparator(checksum)
 	if hc == nil {
 		return false
 	}
@@ -114,7 +118,7 @@ func isCachedFile(fullname, hsx string) bool {
 }
 
 // Get get file from network
-func (e *Executor) Get(rawurl, hsx string) (string, error) {
+func (e *Executor) Get(rawurl, checksum string) (string, error) {
 	req, err := http.NewRequest("GET", rawurl, nil)
 	if err != nil {
 		return "", err
@@ -127,10 +131,10 @@ func (e *Executor) Get(rawurl, hsx string) (string, error) {
 	defer resp.Body.Close()
 	filename := resolveFileName(resp, rawurl)
 	fullname := filepath.Join(e.OutDir, filename)
-	if isCachedFile(fullname, hsx) {
+	if IsAlreadyExistsFile(fullname, checksum) {
 		return fullname, nil
 	}
-	hc := NewHashComparator(hsx)
+	hc := NewHashComparator(checksum)
 	fd, err := os.Create(fullname)
 	if err != nil {
 		return "", err
@@ -140,9 +144,11 @@ func (e *Executor) Get(rawurl, hsx string) (string, error) {
 		resp.ContentLength,
 		filename,
 	)
-	w := io.MultiWriter(fd, bar)
+	var w io.Writer
 	if hc != nil {
-		w = io.MultiWriter(w, hc.H)
+		w = io.MultiWriter(fd, bar, hc.H)
+	} else {
+		w = io.MultiWriter(fd, bar)
 	}
 	if _, err := io.Copy(w, resp.Body); err != nil && err != io.EOF {
 		return "", err
