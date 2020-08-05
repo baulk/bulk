@@ -18,6 +18,7 @@ require (
 	github.com/ulikunitz/xz v0.5.7
 	github.com/zeebo/blake3 v0.0.4
 	golang.org/x/crypto v0.0.0-20200728195943-123391ffb6de
+	golang.org/x/net v0.0.0-20190404232315-eb5bcb51f2a3
 	golang.org/x/sys v0.0.0-20200728102440-3e129f6d46b1
 	golang.org/x/text v0.3.3
 )

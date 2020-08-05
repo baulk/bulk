@@ -49,3 +49,8 @@ func (hc *HashComparator) IsMatch() error {
 	}
 	return nil
 }
+
+// IsHashNotMatch is hash not match
+func IsHashNotMatch(err error) bool {
+	return strings.HasPrefix(err.Error(), "The calculated hash value ")
+}

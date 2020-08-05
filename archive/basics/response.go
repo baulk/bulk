@@ -40,7 +40,7 @@ func (file *File) Prepare() error {
 	if file.URL == "" {
 		return ErrResponseFilesField
 	}
-	fullpath, err := fileexecutor.Get(file.URL, file.Hash)
+	fullpath, err := fileexecutor.WebGet(file.URL, file.Hash)
 	if err != nil {
 		return err
 	}
