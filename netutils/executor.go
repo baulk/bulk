@@ -56,30 +56,23 @@ func isTrue(s string) bool {
 
 // NewExecutor new executor
 func NewExecutor(destdir string) *Executor {
-	ps, err := ResolveProxy()
 	InsecureSkipVerify := isTrue(os.Getenv("BULK_INSECURE_TLS"))
-	var transport http.RoundTripper
+	transport := &http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: InsecureSkipVerify,
+		},
+	}
+	ps, err := ResolveProxy()
 	if err == nil {
-		h1transport := &http.Transport{
-			TLSClientConfig: &tls.Config{
-				InsecureSkipVerify: InsecureSkipVerify,
-			},
-		}
 		proxyurl := ps.ProxyServer
 		if !strings.Contains(proxyurl, "://") {
 			proxyurl = "http://" + proxyurl // avoid proxy url parse failed
 		}
 		if u, err := url.Parse(proxyurl); err == nil {
-			h1transport.Proxy = http.ProxyURL(u)
-		}
-		transport = h1transport
-	} else {
-		transport = &http2.Transport{
-			TLSClientConfig: &tls.Config{
-				InsecureSkipVerify: InsecureSkipVerify,
-			},
+			transport.Proxy = http.ProxyURL(u)
 		}
 	}
+	http2.ConfigureTransport(transport)
 	_ = os.MkdirAll(destdir, 0755)
 	return &Executor{
 		Destination: destdir,
@@ -104,7 +97,8 @@ func (e *Executor) resolveFileName(resp *http.Response, rawurl string) string {
 	if err != nil {
 		return "index.html"
 	}
-	if filename := path.Base(u.Path); filename != "" && filename != "." {
+	if filename := path.Base(u.Path); filename != "" && filename != "/" && filename != "." {
+		e.DbgPrint("Resolve filename from url path %s", filename)
 		return filename
 	}
 	return "index.html"
