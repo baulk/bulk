@@ -2,7 +2,6 @@ package netutils
 
 import (
 	"crypto/tls"
-	"encoding/hex"
 	"errors"
 	"fmt"
 	"io"
@@ -21,32 +20,44 @@ import (
 	"golang.org/x/net/http2"
 )
 
-// error
-var (
-	ErrProxyNotConfigured = errors.New("Proxy is not configured correctly")
-)
-
-// ProxySettings todo
-type ProxySettings struct {
-	ProxyServer   string
-	ProxyOverride string // aka no proxy
-	sep           string
+// Options todo
+type Options struct {
+	InsecureSkipVerify bool
+	IsDebugMode        bool
+	DisableAutoProxy   bool
+	DestinationPath    string
+	ProxyURL           string
 }
 
-func getEnvAny(names ...string) string {
-	for _, n := range names {
-		if val := os.Getenv(n); val != "" {
-			return val
-		}
+// DefaultOptions default
+var DefaultOptions = &Options{}
+
+// GetProxyURL get proxy url
+func (opt *Options) GetProxyURL() string {
+	if len(opt.ProxyURL) != 0 {
+		return canonicalProxyURL(opt.ProxyURL)
+	}
+	if ps, err := ResolveProxy(); err == nil {
+		return canonicalProxyURL(ps.ProxyServer)
 	}
 	return ""
 }
 
 // Executor download executor
 type Executor struct {
-	client      *http.Client
-	Destination string
-	IsDebugMode bool
+	client          *http.Client
+	DestinationPath string
+	IsDebugMode     bool
+}
+
+// EnhanceURL metadata
+type EnhanceURL struct {
+	URL               string
+	Destination       string
+	HashValue         string
+	Algorithm         string
+	DisplayHash       bool // Calculate the hash checksum of the downloaded file
+	OverwriteExisting bool
 }
 
 func isTrue(s string) bool {
@@ -55,78 +66,29 @@ func isTrue(s string) bool {
 }
 
 // NewExecutor new executor
-func NewExecutor(destdir string) *Executor {
-	InsecureSkipVerify := isTrue(os.Getenv("BULK_INSECURE_TLS"))
+func NewExecutor(opt *Options) *Executor {
+	if opt == nil {
+		opt = DefaultOptions
+	}
+	e := &Executor{DestinationPath: opt.DestinationPath, IsDebugMode: opt.IsDebugMode}
 	transport := &http.Transport{
 		TLSClientConfig: &tls.Config{
-			InsecureSkipVerify: InsecureSkipVerify,
+			InsecureSkipVerify: opt.InsecureSkipVerify,
 		},
 	}
-	ps, err := ResolveProxy()
-	if err == nil {
-		proxyurl := ps.ProxyServer
-		if !strings.Contains(proxyurl, "://") {
-			proxyurl = "http://" + proxyurl // avoid proxy url parse failed
-		}
-		if u, err := url.Parse(proxyurl); err == nil {
-			transport.Proxy = http.ProxyURL(u)
-		}
-	}
-	http2.ConfigureTransport(transport)
-	_ = os.MkdirAll(destdir, 0755)
-	return &Executor{
-		Destination: destdir,
-		client: &http.Client{
-			Transport: transport,
-		},
-	}
-}
-
-func (e *Executor) resolveFileName(resp *http.Response, rawurl string) string {
-	if disp := resp.Header.Get("Content-Disposition"); disp != "" {
-		if _, params, err := mime.ParseMediaType(disp); err == nil {
-			if filename := params["filename"]; len(filename) > 0 {
-				if !base.PathIsSlipVulnerability(filename) {
-					e.DbgPrint("Resolve Content-Disposition to '%s'", filename)
-					return path.Base(filename)
-				}
+	if !opt.DisableAutoProxy {
+		if proxyURL := opt.GetProxyURL(); len(proxyURL) != 0 {
+			if u, err := url.Parse(proxyURL); err == nil {
+				transport.Proxy = http.ProxyURL(u)
+				e.DbgPrint("Use ProxyURL %s", proxyURL)
 			}
 		}
 	}
-	u, err := url.Parse(rawurl)
-	if err != nil {
-		return "index.html"
+	http2.ConfigureTransport(transport)
+	e.client = &http.Client{
+		Transport: transport,
 	}
-	if filename := path.Base(u.Path); filename != "" && filename != "/" && filename != "." {
-		e.DbgPrint("Resolve filename from url path %s", filename)
-		return filename
-	}
-	return "index.html"
-}
-
-// FileHashEqual file exists
-func FileHashEqual(fullname, checksum string) bool {
-	if checksum == "" {
-		return false
-	}
-	if _, err := os.Stat(fullname); err != nil {
-		return false
-	}
-	hc := NewHashComparator(checksum)
-	if hc == nil {
-		return false
-	}
-	fd, err := os.Open(fullname)
-	if err != nil {
-		return false
-	}
-	if _, err := io.Copy(hc.H, fd); err != nil && err != io.EOF {
-		return false
-	}
-	if hsx2 := hex.EncodeToString(hc.H.Sum(nil)); hsx2 != hc.S {
-		return false
-	}
-	return true
+	return e
 }
 
 // DbgPrint todo
@@ -135,6 +97,30 @@ func (e *Executor) DbgPrint(format string, a ...interface{}) {
 		ss := fmt.Sprintf(format, a...)
 		_, _ = os.Stderr.WriteString(base.StrCat("\x1b[33m* ", ss, "\x1b[0m\n"))
 	}
+}
+
+func isCorrectName(name string) bool {
+	return name != "" && name != "." && name != "/"
+}
+
+// ResolveFileName resolve filename from response and rawurl
+func (e *Executor) ResolveFileName(resp *http.Response, rawurl string) string {
+	if disp := resp.Header.Get("Content-Disposition"); disp != "" {
+		if _, params, err := mime.ParseMediaType(disp); err == nil {
+			if filename := params["filename"]; len(filename) > 0 {
+				if !base.PathIsSlipVulnerability(filename) {
+					e.DbgPrint("Resolve '%s' from Content-Disposition", filename)
+					return path.Base(filename)
+				}
+			}
+		}
+	}
+	if u, err := url.Parse(rawurl); err == nil {
+		if filename := path.Base(u.Path); isCorrectName(filename) {
+			return filename
+		}
+	}
+	return "index.html"
 }
 
 func tlsVersionName(i uint16) string {
@@ -187,15 +173,73 @@ func (e *Executor) traceRequest(req *http.Request) *http.Request {
 	return req.WithContext(httptrace.WithClientTrace(req.Context(), trace))
 }
 
-// WebGet get file from network
-func (e *Executor) WebGet(rawurl, checksum string) (string, error) {
-	req, err := http.NewRequest("GET", rawurl, nil)
+func (e *Executor) traceHeader(resp *http.Response) {
+	if e.IsDebugMode {
+		for k, v := range resp.Header {
+			fmt.Fprintf(os.Stderr, "\x1b[33m* %s: %s\x1b[0m\n", k, strings.Join(v, "; "))
+		}
+	}
+}
+
+func (e *Executor) traceResponseError(resp *http.Response) {
+	if e.IsDebugMode {
+		_, _ = io.Copy(os.Stderr, resp.Body)
+		_, _ = os.Stderr.Write([]byte("\n"))
+	}
+}
+
+// ResolvePath todo
+func (e *Executor) ResolvePath(resp *http.Response, eu *EnhanceURL) (string, error) {
+	// When output name is set OverwriteExisting is default
+	if eu.Destination != "" {
+		destination, err := filepath.Abs(eu.Destination)
+		if err != nil {
+			return "", err
+		}
+		destdir := filepath.Dir(destination)
+		if err := os.MkdirAll(destdir, 0755); err != nil {
+			return "", err
+		}
+		return destination, nil
+	}
+	filename := e.ResolveFileName(resp, eu.URL)
+	destinationPath, err := filepath.Abs(eu.Destination)
 	if err != nil {
 		return "", err
 	}
-	req.Header.Set("User-Agent", "bulk/1.0")
+	if _, err := os.Stat(destinationPath); err != nil && os.IsNotExist(err) {
+		if err := os.MkdirAll(destinationPath, 0755); err != nil {
+			return "", err
+		}
+	}
+	dest := filepath.Join(destinationPath, filename)
+	if eu.OverwriteExisting {
+		return dest, nil
+	}
+	if _, err := os.Stat(dest); err != nil && os.IsNotExist(err) {
+		return dest, nil
+	}
+	name, ext := stripExtension(filename)
+	for i := 1; i < 1001; i++ {
+		dest := filepath.Join(destinationPath, fmt.Sprintf("%s-(%d)%s", name, i, ext))
+		if _, err := os.Stat(dest); err != nil && os.IsNotExist(err) {
+			return dest, nil
+		}
+	}
+	return "", base.ErrorCat("'", filename, "' already exists")
+}
+
+// WebGet get file from network
+func (e *Executor) WebGet(eu *EnhanceURL) (string, error) {
+	if eu == nil {
+		return "", errors.New("incorrect WebGet param")
+	}
+	req, err := http.NewRequest("GET", eu.URL, nil)
+	if err != nil {
+		return "", err
+	}
 	if e.IsDebugMode {
-		req = e.traceRequest(req)
+		req = e.traceRequest(req) // register trace info
 	}
 	resp, err := e.client.Do(req)
 	if err != nil {
@@ -203,26 +247,23 @@ func (e *Executor) WebGet(rawurl, checksum string) (string, error) {
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode < 200 && resp.StatusCode >= 300 {
-		if e.IsDebugMode {
-			_, _ = io.Copy(os.Stderr, resp.Body)
-			_, _ = os.Stderr.Write([]byte("\n"))
-		}
+		e.traceResponseError(resp)
 		return "", base.ErrorCat("response ", resp.Status)
 	}
 	e.DbgPrint("%s %s", resp.Proto, resp.Status)
-	if e.IsDebugMode {
-		for k, v := range resp.Header {
-			fmt.Fprintf(os.Stderr, "\x1b[33m* %s: %s\x1b[0m\n", k, strings.Join(v, "; "))
-		}
+	e.traceHeader(resp)
+	dest, err := e.ResolvePath(resp, eu)
+	if err != nil {
+		return "", err
 	}
-	filename := e.resolveFileName(resp, rawurl)
-	fullname := filepath.Join(e.Destination, filename)
-	if FileHashEqual(fullname, checksum) {
-		e.DbgPrint("Found '%s' hash equal '%s'", filename, checksum)
-		return fullname, nil
+	e.DbgPrint("Resolve save path %s", dest)
+	if FileHashEqual(dest, eu) {
+		e.DbgPrint("Found '%s' hash equal '%s'", dest, eu.HashValue)
+		return dest, nil
 	}
-	part := filename + ".part"
-	hc := NewHashComparator(checksum)
+	filename := filepath.Base(dest)
+	part := dest + ".part"
+	verifier := NewVerifier(eu)
 	fd, err := os.Create(part)
 	if err != nil {
 		return "", err
@@ -232,8 +273,8 @@ func (e *Executor) WebGet(rawurl, checksum string) (string, error) {
 		filename,
 	)
 	var w io.Writer
-	if hc != nil {
-		w = io.MultiWriter(fd, bar, hc.H)
+	if verifier != nil {
+		w = io.MultiWriter(fd, bar, verifier.H)
 	} else {
 		w = io.MultiWriter(fd, bar)
 	}
@@ -241,15 +282,15 @@ func (e *Executor) WebGet(rawurl, checksum string) (string, error) {
 		fd.Close()
 		return "", err
 	}
-	if hc != nil {
-		if err := hc.IsMatch(); err != nil {
+	if verifier != nil {
+		if err := verifier.IsMatch(filename); err != nil {
 			fd.Close()
 			return "", err
 		}
 	}
 	fd.Close()
-	if err := MoveFile(part, fullname); err != nil {
-		return "", base.ErrorCat("unable move ", part, "to ", fullname, " error: ", err.Error())
+	if err := MoveFile(part, dest); err != nil {
+		return "", base.ErrorCat("unable move ", part, "to ", dest, " error: ", err.Error())
 	}
-	return fullname, nil
+	return dest, nil
 }

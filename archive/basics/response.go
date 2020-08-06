@@ -5,6 +5,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"strings"
 
 	"github.com/baulk/bulk/netutils"
 )
@@ -19,6 +20,11 @@ type File struct {
 	Executabled bool   `json:"executabled,omitempty"` // when mark executabled. a script create under windows can run linux
 }
 
+func isTrue(s string) bool {
+	s = strings.ToLower(s)
+	return s == "true" || s == "on" || s == "yes" || s == "1"
+}
+
 func outTempDir() string {
 	if bulkoutdir := os.Getenv("BULK_DOWNLOAD_OUTDIR"); len(bulkoutdir) != 0 {
 		return bulkoutdir
@@ -27,7 +33,17 @@ func outTempDir() string {
 	return os.ExpandEnv("${TEMP}/bulk_download_out")
 }
 
-var fileexecutor = netutils.NewExecutor(outTempDir())
+func newExecutor() *netutils.Executor {
+	opt := &netutils.Options{
+		IsDebugMode:        isTrue(os.Getenv("BULK_DEBUG_TRACE")),
+		InsecureSkipVerify: isTrue(os.Getenv("BULK_INSECURE_SKIP_VERIFY")),
+		DisableAutoProxy:   isTrue(os.Getenv("BULK_DISABLE_AUTO_PROXY")),
+		DestinationPath:    outTempDir(),
+	}
+	return netutils.NewExecutor(opt)
+}
+
+var fileexecutor = newExecutor()
 
 // Prepare check file
 func (file *File) Prepare() error {
@@ -40,7 +56,7 @@ func (file *File) Prepare() error {
 	if file.URL == "" {
 		return ErrResponseFilesField
 	}
-	fullpath, err := fileexecutor.WebGet(file.URL, file.Hash)
+	fullpath, err := fileexecutor.WebGet(&netutils.EnhanceURL{URL: file.URL, Checksum: file.Hash})
 	if err != nil {
 		return err
 	}
