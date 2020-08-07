@@ -203,7 +203,7 @@ func (e *Executor) ResolvePath(resp *http.Response, eu *EnhanceURL) (string, err
 		return destination, nil
 	}
 	filename := e.ResolveFileName(resp, eu.URL)
-	destinationPath, err := filepath.Abs(eu.Destination)
+	destinationPath, err := filepath.Abs(e.DestinationPath)
 	if err != nil {
 		return "", err
 	}
