@@ -17,6 +17,7 @@ import (
 
 	"github.com/baulk/bulk/base"
 	"github.com/baulk/bulk/progressbar"
+	"github.com/mattn/go-runewidth"
 	"golang.org/x/net/http2"
 )
 
@@ -229,6 +230,13 @@ func (e *Executor) ResolvePath(resp *http.Response, eu *EnhanceURL) (string, err
 	return "", base.ErrorCat("'", filename, "' already exists")
 }
 
+func fileNameOrDescription(filename string) string {
+	if runewidth.StringWidth(filename) > 20 {
+		return "downloading"
+	}
+	return filename
+}
+
 // WebGet get file from network
 func (e *Executor) WebGet(eu *EnhanceURL) (string, error) {
 	if eu == nil {
@@ -270,7 +278,7 @@ func (e *Executor) WebGet(eu *EnhanceURL) (string, error) {
 	}
 	bar := progressbar.DefaultBytes(
 		resp.ContentLength,
-		filename,
+		fileNameOrDescription(filename),
 	)
 	var w io.Writer
 	if verifier != nil {
