@@ -28,7 +28,11 @@ type Options struct {
 	DisableAutoProxy   bool
 	DestinationPath    string
 	ProxyURL           string
+	UserAgent          string
 }
+
+// DefaultUserAgent user-agent
+var DefaultUserAgent = "Bulk/2.0"
 
 // DefaultOptions default
 var DefaultOptions = &Options{}
@@ -48,6 +52,7 @@ func (opt *Options) GetProxyURL() string {
 type Executor struct {
 	client          *http.Client
 	DestinationPath string
+	UserAgent       string
 	IsDebugMode     bool
 }
 
@@ -57,7 +62,6 @@ type EnhanceURL struct {
 	Destination       string
 	HashValue         string
 	Algorithm         string
-	DisplayHash       bool // Calculate the hash checksum of the downloaded file
 	OverwriteExisting bool
 }
 
@@ -71,7 +75,10 @@ func NewExecutor(opt *Options) *Executor {
 	if opt == nil {
 		opt = DefaultOptions
 	}
-	e := &Executor{DestinationPath: opt.DestinationPath, IsDebugMode: opt.IsDebugMode}
+	e := &Executor{DestinationPath: opt.DestinationPath, IsDebugMode: opt.IsDebugMode, UserAgent: opt.UserAgent}
+	if e.UserAgent == "" {
+		e.UserAgent = DefaultUserAgent
+	}
 	transport := &http.Transport{
 		TLSClientConfig: &tls.Config{
 			InsecureSkipVerify: opt.InsecureSkipVerify,
@@ -220,7 +227,7 @@ func (e *Executor) ResolvePath(resp *http.Response, eu *EnhanceURL) (string, err
 	if _, err := os.Stat(dest); err != nil && os.IsNotExist(err) {
 		return dest, nil
 	}
-	name, ext := stripExtension(filename)
+	name, ext := StripExtension(filename)
 	for i := 1; i < 1001; i++ {
 		dest := filepath.Join(destinationPath, fmt.Sprintf("%s-(%d)%s", name, i, ext))
 		if _, err := os.Stat(dest); err != nil && os.IsNotExist(err) {
@@ -246,6 +253,7 @@ func (e *Executor) WebGet(eu *EnhanceURL) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	req.Header.Set("User-Agent", e.UserAgent)
 	if e.IsDebugMode {
 		req = e.traceRequest(req) // register trace info
 	}

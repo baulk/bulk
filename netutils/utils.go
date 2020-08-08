@@ -14,7 +14,8 @@ var complexExtensions = []string{
 	".tar.zst",
 }
 
-func stripExtension(name string) (string, string) {
+// StripExtension stripExtension
+func StripExtension(name string) (string, string) {
 	lowername := strings.ToLower(name)
 	for _, s := range complexExtensions {
 		if strings.HasSuffix(lowername, s) {
