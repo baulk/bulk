@@ -175,7 +175,7 @@ func (e *Executor) traceRequest(req *http.Request) *http.Request {
 			}
 		},
 		WroteHeaderField: func(key string, value []string) {
-			fmt.Fprintf(os.Stderr, "\x1b[33m> %s: %s\x1b[0m\n", key, strings.Join(value, "; "))
+			fmt.Fprintf(os.Stderr, "\x1b[33m> \x1b[36m%s: \x1b[35m%s\x1b[0m\n", key, strings.Join(value, "; "))
 		},
 	}
 	return req.WithContext(httptrace.WithClientTrace(req.Context(), trace))
@@ -184,7 +184,7 @@ func (e *Executor) traceRequest(req *http.Request) *http.Request {
 func (e *Executor) traceHeader(resp *http.Response) {
 	if e.IsDebugMode {
 		for k, v := range resp.Header {
-			fmt.Fprintf(os.Stderr, "\x1b[33m* %s: %s\x1b[0m\n", k, strings.Join(v, "; "))
+			fmt.Fprintf(os.Stderr, "\x1b[33m< \x1b[36m%s: \x1b[01;34m%s\x1b[0m\n", k, strings.Join(v, "; "))
 		}
 	}
 }
