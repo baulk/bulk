@@ -7,7 +7,7 @@ require (
 	github.com/dsnet/compress v0.0.1
 	github.com/frankban/quicktest v1.10.0 // indirect
 	github.com/google/go-cmp v0.5.1 // indirect
-	github.com/klauspost/compress v1.10.10
+	github.com/klauspost/compress v1.10.11
 	github.com/kr/pretty v0.2.1 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/mattn/go-isatty v0.0.12
