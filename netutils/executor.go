@@ -284,10 +284,20 @@ func (e *Executor) WebGet(eu *EnhanceURL) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	bar := progressbar.DefaultBytes(
-		resp.ContentLength,
-		fileNameOrDescription(filename),
-	)
+	var bar *progressbar.ProgressBar
+	if runewidth.StringWidth(filename) > 20 {
+		fmt.Fprintf(os.Stderr, "\x1b[33mdownload %s\x1b[0m\n", filename)
+		bar = progressbar.DefaultBytes(
+			resp.ContentLength,
+			"downloading",
+		)
+	} else {
+		bar = progressbar.DefaultBytes(
+			resp.ContentLength,
+			filename,
+		)
+	}
+
 	var w io.Writer
 	if verifier != nil {
 		w = io.MultiWriter(fd, bar, verifier.H)

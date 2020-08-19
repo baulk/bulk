@@ -49,17 +49,3 @@ func getWidth() int {
 	}
 	return 80
 }
-
-// const
-const (
-	EnableVirtualTerminalProcessingMode = 0x4
-)
-
-func init() {
-	var mode uint32
-	// becasue we print message to stderr
-	fd := os.Stderr.Fd()
-	if windows.GetConsoleMode(windows.Handle(fd), &mode) == nil {
-		_ = windows.SetConsoleMode(windows.Handle(fd), mode|EnableVirtualTerminalProcessingMode)
-	}
-}

@@ -1,0 +1,12 @@
+# https://toml.io/en/
+name = "bulk"
+version = "1.0.0"
+dirs = [
+    "cmd/rind", # dirs
+]
+
+[[files]]
+path = "LICENSE"
+destination = "share"
+newname = "copyright.txt"
+norename = true
