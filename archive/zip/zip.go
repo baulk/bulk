@@ -41,10 +41,12 @@ func Matched(buf []byte) bool {
 
 // Extractor todo
 type Extractor struct {
-	fd  *os.File
-	zr  *zip.Reader
-	dec *encoding.Decoder
-	es  *basics.ExtractSetting
+	fd                    *os.File
+	zr                    *zip.Reader
+	dec                   *encoding.Decoder
+	es                    *basics.ExtractSetting
+	compressedSizeTotal   uint64
+	uncompressedSizeTotal uint64
 }
 
 // NewExtractor new extractor
@@ -102,6 +104,15 @@ func (e *Extractor) extractFile(p, destination string, zf *zip.File) error {
 	}
 	defer r.Close()
 	return basics.WriteDisk(r, p, zf.FileHeader.Mode())
+}
+
+// Statistics todo
+func (e *Extractor) Statistics() error {
+	for _, file := range e.zr.File {
+		e.uncompressedSizeTotal += file.UncompressedSize64
+		e.compressedSizeTotal += file.CompressedSize64
+	}
+	return nil
 }
 
 // Extract file
