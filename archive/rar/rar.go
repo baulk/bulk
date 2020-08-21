@@ -67,6 +67,7 @@ func (e *Extractor) Extract(destination string) error {
 			}
 			return basics.ErrRelativePathEscape
 		}
+		e.es.OnEntry(hdr.Name)
 		if hdr.IsDir {
 			if err := os.MkdirAll(p, 0775); err != nil {
 				if !e.es.IgnoreError {

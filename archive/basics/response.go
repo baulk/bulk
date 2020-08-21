@@ -5,6 +5,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"runtime"
 	"strings"
 
 	"github.com/baulk/bulk/netutils"
@@ -28,14 +29,15 @@ func isTrue(s string) bool {
 func outTempDir() string {
 	if bulkoutdir := os.Getenv("BULK_DOWNLOAD_OUTDIR"); len(bulkoutdir) != 0 {
 		return bulkoutdir
-
 	}
-	return os.ExpandEnv("${TEMP}/bulk_download_out")
+	if runtime.GOOS == "windows" {
+		return os.ExpandEnv("${TEMP}/bulk_download_out")
+	}
+	return "/tmp/bulk_download_out"
 }
 
 func newExecutor() *netutils.Executor {
 	opt := &netutils.Options{
-		IsDebugMode:        isTrue(os.Getenv("BULK_DEBUG_TRACE")),
 		InsecureSkipVerify: isTrue(os.Getenv("BULK_INSECURE_SKIP_VERIFY")),
 		DisableAutoProxy:   isTrue(os.Getenv("BULK_DISABLE_AUTO_PROXY")),
 		DestinationPath:    outTempDir(),

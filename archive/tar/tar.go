@@ -94,6 +94,7 @@ func (e *Extractor) Extract(destination string) error {
 				}
 			}
 		case tar.TypeReg, tar.TypeRegA, tar.TypeChar, tar.TypeBlock, tar.TypeFifo, tar.TypeGNUSparse:
+			e.es.OnEntry(hdr.Name)
 			if err := basics.WriteDisk(e.r, p, fi.Mode()); err != nil {
 				if !e.es.IgnoreError {
 					return err

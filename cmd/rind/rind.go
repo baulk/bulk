@@ -12,17 +12,6 @@ import (
 
 // rind golang base download utils
 
-// IsDebugMode debug mode
-var IsDebugMode bool
-
-// DbgPrint todo
-func DbgPrint(format string, a ...interface{}) {
-	if IsDebugMode {
-		ss := fmt.Sprintf(format, a...)
-		_, _ = os.Stderr.WriteString(base.StrCat("\x1b[33m* ", ss, "\x1b[0m\n"))
-	}
-}
-
 type rindOptions struct {
 	opt netutils.Options
 	eu  netutils.EnhanceURL
@@ -79,7 +68,7 @@ func (ro *rindOptions) Invoke(val int, oa, raw string) error {
 	case 'k':
 		ro.opt.InsecureSkipVerify = true
 	case 'V':
-		IsDebugMode = true
+		base.IsDebugMode = true
 	case 'A': // --user-agent
 		ro.opt.UserAgent = oa
 	case 'C': //--checksum
@@ -134,7 +123,6 @@ func (ro *rindOptions) ParseArgv() error {
 		return errors.New("missing URL")
 	}
 	ro.eu.URL = ua[0]
-	ro.opt.IsDebugMode = IsDebugMode
 	return nil
 }
 

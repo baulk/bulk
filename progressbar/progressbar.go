@@ -763,3 +763,8 @@ func humanizeBytes(s float64, withSuffix bool) string {
 func logn(n, b float64) float64 {
 	return math.Log(n) / math.Log(b)
 }
+
+// GetTerminalWidth get
+func GetTerminalWidth() int {
+	return getWidth()
+}

@@ -26,6 +26,10 @@ func readMagic(fd *os.File) ([]byte, error) {
 
 // NewExtractor todo
 func NewExtractor(file string, es *basics.ExtractSetting) (Extractor, error) {
+	if es == nil {
+		es = &basics.ExtractSetting{}
+	}
+
 	fd, err := os.Open(file)
 	if err != nil {
 		return nil, err

@@ -135,11 +135,7 @@ func (e *Extractor) Extract(destination string) error {
 			}
 			continue
 		}
-		if e.es.OnEntry != nil {
-			if err := e.es.OnEntry(name, fi); err != nil {
-				return err
-			}
-		}
+		e.es.OnEntry(name)
 		if fi.Mode()&os.ModeSymlink != 0 {
 			if err := e.extractSymlink(p, destination, file); err != nil {
 				if !e.es.IgnoreError {

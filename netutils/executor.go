@@ -24,7 +24,6 @@ import (
 // Options todo
 type Options struct {
 	InsecureSkipVerify bool
-	IsDebugMode        bool
 	DisableAutoProxy   bool
 	DestinationPath    string
 	ProxyURL           string
@@ -53,7 +52,6 @@ type Executor struct {
 	client          *http.Client
 	DestinationPath string
 	UserAgent       string
-	IsDebugMode     bool
 }
 
 // EnhanceURL metadata
@@ -75,7 +73,7 @@ func NewExecutor(opt *Options) *Executor {
 	if opt == nil {
 		opt = DefaultOptions
 	}
-	e := &Executor{DestinationPath: opt.DestinationPath, IsDebugMode: opt.IsDebugMode, UserAgent: opt.UserAgent}
+	e := &Executor{DestinationPath: opt.DestinationPath, UserAgent: opt.UserAgent}
 	if e.UserAgent == "" {
 		e.UserAgent = DefaultUserAgent
 	}
@@ -88,7 +86,7 @@ func NewExecutor(opt *Options) *Executor {
 		if proxyURL := opt.GetProxyURL(); len(proxyURL) != 0 {
 			if u, err := url.Parse(proxyURL); err == nil {
 				transport.Proxy = http.ProxyURL(u)
-				e.DbgPrint("Use ProxyURL %s", proxyURL)
+				base.DbgPrint("Use ProxyURL %s", proxyURL)
 			}
 		}
 	}
@@ -97,14 +95,6 @@ func NewExecutor(opt *Options) *Executor {
 		Transport: transport,
 	}
 	return e
-}
-
-// DbgPrint todo
-func (e *Executor) DbgPrint(format string, a ...interface{}) {
-	if e.IsDebugMode {
-		ss := fmt.Sprintf(format, a...)
-		_, _ = os.Stderr.WriteString(base.StrCat("\x1b[33m* ", ss, "\x1b[0m\n"))
-	}
 }
 
 func isCorrectName(name string) bool {
@@ -117,7 +107,7 @@ func (e *Executor) ResolveFileName(resp *http.Response, rawurl string) string {
 		if _, params, err := mime.ParseMediaType(disp); err == nil {
 			if filename := params["filename"]; len(filename) > 0 {
 				if !base.PathIsSlipVulnerability(filename) {
-					e.DbgPrint("Resolve '%s' from Content-Disposition", filename)
+					base.DbgPrint("Resolve '%s' from Content-Disposition", filename)
 					return path.Base(filename)
 				}
 			}
@@ -182,7 +172,7 @@ func (e *Executor) traceRequest(req *http.Request) *http.Request {
 }
 
 func (e *Executor) traceHeader(resp *http.Response) {
-	if e.IsDebugMode {
+	if base.IsDebugMode {
 		for k, v := range resp.Header {
 			fmt.Fprintf(os.Stderr, "\x1b[33m< \x1b[36m%s: \x1b[01;34m%s\x1b[0m\n", k, strings.Join(v, "; "))
 		}
@@ -190,7 +180,7 @@ func (e *Executor) traceHeader(resp *http.Response) {
 }
 
 func (e *Executor) traceResponseError(resp *http.Response) {
-	if e.IsDebugMode {
+	if base.IsDebugMode {
 		_, _ = io.Copy(os.Stderr, resp.Body)
 		_, _ = os.Stderr.Write([]byte("\n"))
 	}
@@ -254,7 +244,7 @@ func (e *Executor) WebGet(eu *EnhanceURL) (string, error) {
 		return "", err
 	}
 	req.Header.Set("User-Agent", e.UserAgent)
-	if e.IsDebugMode {
+	if base.IsDebugMode {
 		req = e.traceRequest(req) // register trace info
 	}
 	resp, err := e.client.Do(req)
@@ -266,15 +256,15 @@ func (e *Executor) WebGet(eu *EnhanceURL) (string, error) {
 		e.traceResponseError(resp)
 		return "", base.ErrorCat("response ", resp.Status)
 	}
-	e.DbgPrint("%s %s", resp.Proto, resp.Status)
+	base.DbgPrint("%s %s", resp.Proto, resp.Status)
 	e.traceHeader(resp)
 	dest, err := e.ResolvePath(resp, eu)
 	if err != nil {
 		return "", err
 	}
-	e.DbgPrint("Resolve save path %s", dest)
+	base.DbgPrint("Resolve save path %s", dest)
 	if FileHashEqual(dest, eu) {
-		e.DbgPrint("Found '%s' hash equal '%s'", dest, eu.HashValue)
+		base.DbgPrint("Found '%s' hash equal '%s'", dest, eu.HashValue)
 		return dest, nil
 	}
 	filename := filepath.Base(dest)
