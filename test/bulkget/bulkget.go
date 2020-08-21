@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/baulk/bulk/base"
 	"github.com/baulk/bulk/netutils"
 )
 
@@ -12,8 +13,8 @@ func main() {
 		fmt.Fprintf(os.Stderr, "usage: %s url\n", os.Args[0])
 		os.Exit(1)
 	}
+	base.IsDebugMode = true
 	executor := netutils.NewExecutor(nil)
-	executor.IsDebugMode = true
 	var hsx string
 	if len(os.Args) > 2 {
 		hsx = os.Args[2]
