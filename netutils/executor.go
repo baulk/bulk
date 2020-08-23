@@ -305,7 +305,7 @@ func (e *Executor) WebGet(eu *EnhanceURL) (string, error) {
 		}
 	}
 	fd.Close()
-	if err := MoveFile(part, dest); err != nil {
+	if err := base.MoveFile(part, dest); err != nil {
 		return "", base.ErrorCat("unable move ", part, "to ", dest, " error: ", err.Error())
 	}
 	return dest, nil

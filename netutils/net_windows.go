@@ -2,9 +2,7 @@ package netutils
 
 import (
 	"os"
-	"syscall"
 
-	"golang.org/x/sys/windows"
 	"golang.org/x/sys/windows/registry"
 )
 
@@ -56,17 +54,4 @@ func ResolveProxy() (*ProxySettings, error) {
 		return ps, nil
 	}
 	return nil, ErrProxyNotConfigured
-}
-
-//MoveFile file
-func MoveFile(oldpath, newpath string) error {
-	from, err := syscall.UTF16PtrFromString(oldpath)
-	if err != nil {
-		return err
-	}
-	to, err := syscall.UTF16PtrFromString(newpath)
-	if err != nil {
-		return err
-	}
-	return windows.MoveFileEx(from, to, windows.MOVEFILE_REPLACE_EXISTING|windows.MOVEFILE_COPY_ALLOWED)
 }
