@@ -18,8 +18,8 @@ require (
 	github.com/ulikunitz/xz v0.5.8
 	github.com/zeebo/blake3 v0.0.4
 	golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a
-	golang.org/x/net v0.0.0-20200813134508-3edf25e44fcc
-	golang.org/x/sys v0.0.0-20200820212457-1fb795427249
+	golang.org/x/net v0.0.0-20200822124328-c89045814202
+	golang.org/x/sys v0.0.0-20200821140526-fda516888d29
 	golang.org/x/text v0.3.3
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 )
