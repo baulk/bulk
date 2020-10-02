@@ -3,7 +3,7 @@ module github.com/baulk/bulk
 go 1.14
 
 require (
-	github.com/andybalholm/brotli v1.0.0
+	github.com/andybalholm/brotli v1.0.1
 	github.com/dsnet/compress v0.0.1
 	github.com/frankban/quicktest v1.10.1 // indirect
 	github.com/google/go-cmp v0.5.1 // indirect
