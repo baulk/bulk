@@ -9,7 +9,7 @@ require (
 	github.com/google/go-cmp v0.5.1 // indirect
 	github.com/klauspost/compress v1.11.1
 	github.com/kr/text v0.2.0 // indirect
-	github.com/mattn/go-colorable v0.1.7
+	github.com/mattn/go-colorable v0.1.8
 	github.com/mattn/go-isatty v0.0.12
 	github.com/mattn/go-runewidth v0.0.9
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db
