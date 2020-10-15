@@ -16,7 +16,7 @@ require (
 	github.com/nwaples/rardecode v1.1.0
 	github.com/pierrec/lz4/v3 v3.3.2
 	github.com/ulikunitz/xz v0.5.8
-	github.com/zeebo/blake3 v0.0.4
+	github.com/zeebo/blake3 v0.1.0
 	golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a
 	golang.org/x/net v0.0.0-20200822124328-c89045814202
 	golang.org/x/sys v0.0.0-20200821140526-fda516888d29
