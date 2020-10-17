@@ -4,10 +4,11 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"os"
 	"path/filepath"
 
-	"github.com/baulk/bulk/progressbar"
 	"github.com/mattn/go-runewidth"
+	"golang.org/x/crypto/ssh/terminal"
 )
 
 // ExtractSetting todo
@@ -24,7 +25,12 @@ type ExtractSetting struct {
 
 // UpdateWidth todo
 func (es *ExtractSetting) UpdateWidth() {
-	es.width = progressbar.GetTerminalWidth()
+	w, _, err := terminal.GetSize(int(os.Stdout.Fd()))
+	if err == nil {
+		es.width = w
+		return
+	}
+	es.width = 80
 }
 
 // OnEntry on entry
