@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/baulk/bulk/archive/basics"
+	"github.com/baulk/bulk/archive/foundation"
 	"github.com/baulk/bulk/base"
 	"github.com/klauspost/compress/zip"
 	"golang.org/x/text/encoding"
@@ -44,13 +44,13 @@ type Extractor struct {
 	fd                    *os.File
 	zr                    *zip.Reader
 	dec                   *encoding.Decoder
-	es                    *basics.ExtractSetting
+	eo                    *foundation.ExtractOptions
 	compressedSizeTotal   uint64
 	uncompressedSizeTotal uint64
 }
 
 // NewExtractor new extractor
-func NewExtractor(fd *os.File, es *basics.ExtractSetting) (*Extractor, error) {
+func NewExtractor(fd *os.File, eo *foundation.ExtractOptions) (*Extractor, error) {
 	st, err := fd.Stat()
 	if err != nil {
 		fd.Close()
@@ -62,9 +62,9 @@ func NewExtractor(fd *os.File, es *basics.ExtractSetting) (*Extractor, error) {
 		return nil, err
 	}
 	zipRegisterDecompressor(zr)
-	e := &Extractor{fd: fd, zr: zr, es: es}
+	e := &Extractor{fd: fd, zr: zr, eo: eo}
 	if ens := os.Getenv("ZIP_ENCODING"); len(ens) != 0 {
-		es.FilenameEncoding = ens
+		eo.FilenameEncoding = ens
 	}
 	return e, nil
 }
@@ -86,15 +86,15 @@ func (e *Extractor) extractSymlink(p, destination string, zf *zip.File) error {
 	}
 	lnkp := strings.TrimSpace(string(lnk))
 	if filepath.IsAbs(lnkp) {
-		return basics.SymbolicLink(filepath.Clean(lnkp), p)
+		return foundation.SymbolicLink(filepath.Clean(lnkp), p)
 	}
 	oldname := filepath.Join(filepath.Dir(p), lnkp)
-	return basics.SymbolicLink(oldname, p)
+	return foundation.SymbolicLink(oldname, p)
 }
 
 func (e *Extractor) extractFile(p, destination string, zf *zip.File) error {
-	if basics.PathIsExists(p) {
-		if !e.es.OverwriteExisting {
+	if foundation.PathIsExists(p) {
+		if !e.eo.OverwriteExisting {
 			return base.ErrorCat("file already exists: ", p)
 		}
 	}
@@ -103,7 +103,7 @@ func (e *Extractor) extractFile(p, destination string, zf *zip.File) error {
 		return err
 	}
 	defer r.Close()
-	return basics.WriteDisk(r, p, zf.FileHeader.Mode())
+	return base.SaveFile(r, p, zf.FileHeader.Mode(), true)
 }
 
 // Statistics todo
@@ -120,32 +120,32 @@ func (e *Extractor) Extract(destination string) error {
 	for _, file := range e.zr.File {
 		name := e.DecodeFileName(file.FileHeader)
 		p := filepath.Join(destination, name)
-		if !basics.IsRelativePath(destination, p) {
-			if e.es.IgnoreError {
+		if !foundation.IsRelativePath(destination, p) {
+			if e.eo.IgnoreError {
 				continue
 			}
-			return basics.ErrRelativePathEscape
+			return foundation.ErrRelativePathEscape
 		}
 		fi := file.FileInfo()
 		if fi.IsDir() {
 			if err := os.MkdirAll(p, fi.Mode()); err != nil {
-				if !e.es.IgnoreError {
+				if !e.eo.IgnoreError {
 					return err
 				}
 			}
 			continue
 		}
-		e.es.OnEntry(name)
+		e.eo.OnEntry(name)
 		if fi.Mode()&os.ModeSymlink != 0 {
 			if err := e.extractSymlink(p, destination, file); err != nil {
-				if !e.es.IgnoreError {
+				if !e.eo.IgnoreError {
 					return err
 				}
 			}
 			continue
 		}
 		if err := e.extractFile(p, destination, file); err != nil {
-			if !e.es.IgnoreError {
+			if !e.eo.IgnoreError {
 				return err
 			}
 		}

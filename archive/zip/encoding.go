@@ -74,8 +74,8 @@ func Decode(in []byte, charset string) ([]byte, error) {
 
 // DecodeFileName decode filename
 func (e *Extractor) DecodeFileName(header zip.FileHeader) string {
-	if header.NonUTF8 && e.es.FilenameEncoding != "" {
-		if filename, err := Decode([]byte(header.Name), e.es.FilenameEncoding); err == nil {
+	if header.NonUTF8 && e.eo.FilenameEncoding != "" {
+		if filename, err := Decode([]byte(header.Name), e.eo.FilenameEncoding); err == nil {
 			return string(filename)
 		}
 	}

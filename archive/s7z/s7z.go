@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/baulk/bulk/archive/basics"
+	"github.com/baulk/bulk/archive/foundation"
 	"github.com/baulk/bulk/base"
 	"github.com/baulk/bulk/go7z"
 )
@@ -14,7 +14,7 @@ import (
 type Extractor struct {
 	fd  *os.File
 	szr *go7z.Reader
-	es  *basics.ExtractSetting
+	es  *foundation.ExtractOptions
 }
 
 // Matched magic
@@ -25,7 +25,7 @@ func Matched(buf []byte) bool {
 }
 
 //NewExtractor new tar extractor
-func NewExtractor(fd *os.File, es *basics.ExtractSetting) (*Extractor, error) {
+func NewExtractor(fd *os.File, es *foundation.ExtractOptions) (*Extractor, error) {
 	st, err := fd.Stat()
 	if err != nil {
 		fd.Close()
@@ -48,12 +48,12 @@ func (e *Extractor) Close() error {
 }
 
 func (e *Extractor) extractFile(p string) error {
-	if basics.PathIsExists(p) {
+	if foundation.PathIsExists(p) {
 		if !e.es.OverwriteExisting {
 			return base.ErrorCat("file already exists: ", p)
 		}
 	}
-	return basics.WriteDisk(e.szr, p, 0664)
+	return base.SaveFile(e.szr, p, 0664, true)
 }
 
 // Extract file
@@ -67,11 +67,11 @@ func (e *Extractor) Extract(destination string) error {
 			return err
 		}
 		p := filepath.Join(destination, hdr.Name)
-		if !basics.IsRelativePath(destination, p) {
+		if !foundation.IsRelativePath(destination, p) {
 			if e.es.IgnoreError {
 				continue
 			}
-			return basics.ErrRelativePathEscape
+			return foundation.ErrRelativePathEscape
 		}
 		//name := path.Clean(hdr.Name)
 		if hdr.IsEmptyStream && !hdr.IsEmptyFile {

@@ -12,7 +12,7 @@ import (
 	"strings"
 
 	"github.com/andybalholm/brotli"
-	"github.com/baulk/bulk/archive/basics"
+	"github.com/baulk/bulk/archive/foundation"
 	"github.com/baulk/bulk/base"
 	"github.com/dsnet/compress/bzip2"
 	"github.com/klauspost/compress/zstd"
@@ -26,7 +26,7 @@ import (
 type Extractor struct {
 	fd *os.File
 	r  *tar.Reader
-	es *basics.ExtractSetting
+	es *foundation.ExtractOptions
 }
 
 // Matched todo
@@ -38,7 +38,7 @@ func Matched(buf []byte) bool {
 }
 
 //NewExtractor new tar extractor
-func NewExtractor(fd *os.File, es *basics.ExtractSetting) (*Extractor, error) {
+func NewExtractor(fd *os.File, es *foundation.ExtractOptions) (*Extractor, error) {
 	return &Extractor{r: tar.NewReader(fd), fd: fd, es: es}, nil
 }
 
@@ -50,19 +50,19 @@ func (e *Extractor) Close() error {
 func (e *Extractor) extractSymlink(p, destination string, hdr *tar.Header) error {
 	linkname := hdr.Linkname
 	if filepath.IsAbs(linkname) {
-		return basics.SymbolicLink(filepath.Clean(linkname), p)
+		return foundation.SymbolicLink(filepath.Clean(linkname), p)
 	}
 	oldname := filepath.Join(filepath.Dir(p), linkname)
-	return basics.SymbolicLink(oldname, p)
+	return foundation.SymbolicLink(oldname, p)
 }
 
 func (e *Extractor) extractHardLink(p, destination string, hdr *tar.Header) error {
 	linkname := hdr.Linkname
 	if filepath.IsAbs(linkname) {
-		return basics.HardLink(filepath.Clean(linkname), p)
+		return foundation.HardLink(filepath.Clean(linkname), p)
 	}
 	oldname := filepath.Join(filepath.Dir(p), linkname)
-	return basics.HardLink(oldname, p)
+	return foundation.HardLink(oldname, p)
 }
 
 // Extract file
@@ -76,13 +76,13 @@ func (e *Extractor) Extract(destination string) error {
 			return err
 		}
 		p := filepath.Join(destination, hdr.Name)
-		if !basics.IsRelativePath(destination, p) {
+		if !foundation.IsRelativePath(destination, p) {
 			if e.es.IgnoreError {
 				continue
 			}
-			return basics.ErrRelativePathEscape
+			return foundation.ErrRelativePathEscape
 		}
-		if hdr.Typeflag != tar.TypeDir && basics.PathIsExists(p) && !e.es.OverwriteExisting {
+		if hdr.Typeflag != tar.TypeDir && foundation.PathIsExists(p) && !e.es.OverwriteExisting {
 			return base.ErrorCat("file already exists: ", p)
 		}
 		fi := hdr.FileInfo()
@@ -95,7 +95,7 @@ func (e *Extractor) Extract(destination string) error {
 			}
 		case tar.TypeReg, tar.TypeRegA, tar.TypeChar, tar.TypeBlock, tar.TypeFifo, tar.TypeGNUSparse:
 			e.es.OnEntry(hdr.Name)
-			if err := basics.WriteDisk(e.r, p, fi.Mode()); err != nil {
+			if err := base.SaveFile(e.r, p, fi.Mode(), true); err != nil {
 				if !e.es.IgnoreError {
 					return err
 				}
@@ -130,55 +130,55 @@ func MatchExtension(name string) int {
 		name = strings.ToLower(name)
 	}
 	if strings.HasSuffix(name, ".tar.gz") || strings.HasSuffix(name, ".tgz") {
-		return basics.GZ
+		return foundation.GZ
 	}
 	if strings.HasSuffix(name, ".tar.bz2") || strings.HasSuffix(name, ".tbz2") {
-		return basics.BZip2
+		return foundation.BZip2
 	}
 	if strings.HasSuffix(name, ".tar.br") || strings.HasSuffix(name, ".tbr") {
-		return basics.Brotli
+		return foundation.Brotli
 	}
 	if strings.HasSuffix(name, ".tar.zst") {
-		return basics.Zstandard
+		return foundation.Zstandard
 	}
 	if strings.HasSuffix(name, ".tar.xz") || strings.HasSuffix(name, ".txz") {
-		return basics.XZ
+		return foundation.XZ
 	}
 	if strings.HasSuffix(name, ".tar.lz4") || strings.HasSuffix(name, ".tlz4") {
-		return basics.LZ4
+		return foundation.LZ4
 	}
-	return basics.None
+	return foundation.None
 }
 
 // NewBrewingExtractor todo
-func NewBrewingExtractor(fd *os.File, es *basics.ExtractSetting, alg int) (*BrewingExtractor, error) {
+func NewBrewingExtractor(fd *os.File, es *foundation.ExtractOptions, alg int) (*BrewingExtractor, error) {
 	var err error
 	e := &BrewingExtractor{extractor: &Extractor{es: es}}
 	switch alg {
-	case basics.GZ:
+	case foundation.GZ:
 		e.mwr, err = gzip.NewReader(fd)
 		if err != nil {
 			fd.Close()
 			return nil, err
 		}
-	case basics.LZ4:
+	case foundation.LZ4:
 		e.mwr = ioutil.NopCloser(lz4.NewReader(fd))
-	case basics.Brotli:
+	case foundation.Brotli:
 		e.mwr = ioutil.NopCloser(brotli.NewReader(fd))
-	case basics.BZip2:
+	case foundation.BZip2:
 		e.mwr, err = bzip2.NewReader(fd, nil)
 		if err != nil {
 			fd.Close()
 			return nil, err
 		}
-	case basics.XZ:
+	case foundation.XZ:
 		r, err := xz.NewReader(fd)
 		if err != nil {
 			fd.Close()
 			return nil, err
 		}
 		e.mwr = ioutil.NopCloser(r)
-	case basics.Zstandard:
+	case foundation.Zstandard:
 		dec, err := zstd.NewReader(fd)
 		if err != nil {
 			fd.Close()

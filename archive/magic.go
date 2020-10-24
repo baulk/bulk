@@ -5,7 +5,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/baulk/bulk/archive/basics"
+	"github.com/baulk/bulk/archive/foundation"
 	"github.com/baulk/bulk/archive/rar"
 	"github.com/baulk/bulk/archive/s7z"
 	"github.com/baulk/bulk/archive/tar"
@@ -25,9 +25,9 @@ func readMagic(fd *os.File) ([]byte, error) {
 }
 
 // NewExtractor todo
-func NewExtractor(file string, es *basics.ExtractSetting) (Extractor, error) {
+func NewExtractor(file string, es *foundation.ExtractOptions) (Extractor, error) {
 	if es == nil {
-		es = &basics.ExtractSetting{}
+		es = &foundation.ExtractOptions{}
 	}
 
 	fd, err := os.Open(file)
@@ -64,7 +64,7 @@ func NewExtractor(file string, es *basics.ExtractSetting) (Extractor, error) {
 		e, _ := tar.NewExtractor(fd, es)
 		return e, nil
 	}
-	if al := tar.MatchExtension(file); al != basics.None {
+	if al := tar.MatchExtension(file); al != foundation.None {
 		e, err := tar.NewBrewingExtractor(fd, es, al)
 		if err != nil {
 			return nil, err

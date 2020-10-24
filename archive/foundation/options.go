@@ -1,4 +1,4 @@
-package basics
+package foundation
 
 import (
 	"errors"
@@ -11,8 +11,8 @@ import (
 	"golang.org/x/crypto/ssh/terminal"
 )
 
-// ExtractSetting todo
-type ExtractSetting struct {
+// ExtractOptions todo
+type ExtractOptions struct {
 	OverwriteExisting bool
 	MkdirAll          bool
 	IgnoreError       bool
@@ -24,7 +24,7 @@ type ExtractSetting struct {
 }
 
 // UpdateWidth todo
-func (es *ExtractSetting) UpdateWidth() {
+func (es *ExtractOptions) UpdateWidth() {
 	w, _, err := terminal.GetSize(int(os.Stdout.Fd()))
 	if err == nil {
 		es.width = w
@@ -34,7 +34,7 @@ func (es *ExtractSetting) UpdateWidth() {
 }
 
 // OnEntry on entry
-func (es *ExtractSetting) OnEntry(name string) {
+func (es *ExtractOptions) OnEntry(name string) {
 	if es == nil || es.ProgressBar == nil {
 		return
 	}

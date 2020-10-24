@@ -5,7 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/baulk/bulk/archive/basics"
+	"github.com/baulk/bulk/archive/foundation"
 	"github.com/baulk/bulk/base"
 	"github.com/nwaples/rardecode"
 )
@@ -15,7 +15,7 @@ type Extractor struct {
 	fd *os.File
 	rr *rardecode.Reader     // underlying stream reader
 	rc *rardecode.ReadCloser // supports multi-volume archives (files only)
-	es *basics.ExtractSetting
+	es *foundation.ExtractOptions
 }
 
 // Matched Magic
@@ -27,7 +27,7 @@ func Matched(buf []byte) bool {
 }
 
 // NewExtractor new extractor
-func NewExtractor(fd *os.File, es *basics.ExtractSetting) (*Extractor, error) {
+func NewExtractor(fd *os.File, es *foundation.ExtractOptions) (*Extractor, error) {
 	rr, err := rardecode.NewReader(fd, es.Password)
 	if err != nil {
 		fd.Close()
@@ -42,12 +42,12 @@ func (e *Extractor) Close() error {
 }
 
 func (e *Extractor) extractFile(p string, mode os.FileMode) error {
-	if basics.PathIsExists(p) {
+	if foundation.PathIsExists(p) {
 		if !e.es.OverwriteExisting {
 			return base.ErrorCat("file already exists: ", p)
 		}
 	}
-	return basics.WriteDisk(e.rr, p, mode)
+	return base.SaveFile(e.rr, p, mode, true)
 }
 
 // Extract file
@@ -61,11 +61,11 @@ func (e *Extractor) Extract(destination string) error {
 			return err
 		}
 		p := filepath.Join(destination, hdr.Name)
-		if !basics.IsRelativePath(destination, p) {
+		if !foundation.IsRelativePath(destination, p) {
 			if e.es.IgnoreError {
 				continue
 			}
-			return basics.ErrRelativePathEscape
+			return foundation.ErrRelativePathEscape
 		}
 		e.es.OnEntry(hdr.Name)
 		if hdr.IsDir {
