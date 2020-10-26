@@ -14,7 +14,7 @@ import (
 
 type rindOptions struct {
 	opt netutils.Options
-	eu  netutils.EnhanceURL
+	eu  netutils.DownloadEntity
 }
 
 // version info

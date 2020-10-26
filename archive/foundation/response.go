@@ -58,7 +58,7 @@ func (file *File) Prepare() error {
 	if file.URL == "" {
 		return ErrResponseFilesField
 	}
-	fullpath, err := fileexecutor.WebGet(&netutils.EnhanceURL{URL: file.URL, HashValue: file.Hash})
+	fullpath, err := fileexecutor.WebGet(&netutils.DownloadEntity{URL: file.URL, HashValue: file.Hash})
 	if err != nil {
 		return err
 	}

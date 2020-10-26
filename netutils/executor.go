@@ -54,8 +54,8 @@ type Executor struct {
 	UserAgent       string
 }
 
-// EnhanceURL metadata
-type EnhanceURL struct {
+// DownloadEntity metadata
+type DownloadEntity struct {
 	URL               string
 	Destination       string
 	HashValue         string
@@ -187,7 +187,7 @@ func (e *Executor) traceResponseError(resp *http.Response) {
 }
 
 // ResolvePath todo
-func (e *Executor) ResolvePath(resp *http.Response, eu *EnhanceURL) (string, error) {
+func (e *Executor) ResolvePath(resp *http.Response, eu *DownloadEntity) (string, error) {
 	// When output name is set OverwriteExisting is default
 	if eu.Destination != "" {
 		destination, err := filepath.Abs(eu.Destination)
@@ -235,7 +235,7 @@ func fileNameOrDescription(filename string) string {
 }
 
 // WebGet get file from network
-func (e *Executor) WebGet(eu *EnhanceURL) (string, error) {
+func (e *Executor) WebGet(eu *DownloadEntity) (string, error) {
 	if eu == nil {
 		return "", errors.New("incorrect WebGet param")
 	}

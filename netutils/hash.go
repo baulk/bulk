@@ -40,7 +40,7 @@ func NewSumizer(algorithm string) *Verifier {
 }
 
 // NewVerifier todo
-func NewVerifier(eu *EnhanceURL) *Verifier {
+func NewVerifier(eu *DownloadEntity) *Verifier {
 	if eu.HashValue != "" {
 		var algorithm, checksum string
 		if i := strings.IndexByte(eu.HashValue, ':'); i != -1 {
@@ -73,7 +73,7 @@ func (hc *Verifier) IsMatch(filename string) error {
 }
 
 // FileHashEqual file exists
-func FileHashEqual(fullname string, eu *EnhanceURL) bool {
+func FileHashEqual(fullname string, eu *DownloadEntity) bool {
 	if eu.HashValue == "" {
 		return false
 	}
