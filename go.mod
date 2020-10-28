@@ -6,7 +6,7 @@ require (
 	github.com/andybalholm/brotli v1.0.1
 	github.com/dsnet/compress v0.0.1
 	github.com/frankban/quicktest v1.11.1 // indirect
-	github.com/klauspost/compress v1.11.1
+	github.com/klauspost/compress v1.11.2
 	github.com/kr/text v0.2.0 // indirect
 	github.com/mattn/go-colorable v0.1.8
 	github.com/mattn/go-isatty v0.0.12
