@@ -27,11 +27,14 @@ var (
 )
 
 func version() {
-	fmt.Fprint(os.Stdout, "rind - Interesting command line download tool\nversion:       ", VERSION, "\n",
-		"build branch:  ", BUILDBRANCH, "\n",
-		"build commit:  ", BUILDCOMMIT, "\n",
-		"build time:    ", BUILDTIME, "\n",
-		"go version:    ", GOVERSION, "\n")
+	fmt.Fprintf(os.Stdout, `rind - Interesting command line download tool
+version:       %s
+build branch:  %s
+build commit:  %s
+build time:    %s
+go version:    %s
+`, VERSION, BUILDBRANCH, BUILDCOMMIT, BUILDTIME, GOVERSION)
+
 }
 
 func usage() {
