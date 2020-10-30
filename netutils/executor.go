@@ -274,20 +274,28 @@ func (e *Executor) WebGet(eu *DownloadEntity) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	var bar *progressbar.ProgressBar
+	humanName := filename
 	if runewidth.StringWidth(filename) > 20 {
 		fmt.Fprintf(os.Stderr, "\x1b[33mdownload %s\x1b[0m\n", filename)
-		bar = progressbar.DefaultBytes(
-			resp.ContentLength,
-			"downloading",
-		)
-	} else {
-		bar = progressbar.DefaultBytes(
-			resp.ContentLength,
-			filename,
-		)
+		humanName = "downloading"
 	}
-
+	bar := progressbar.NewOptions64(resp.ContentLength,
+		progressbar.OptionUseANSICodes(true),
+		progressbar.OptionSetDescription(humanName),
+		progressbar.OptionEnableColorCodes(true),
+		progressbar.OptionFullWidth(),
+		progressbar.OptionShowBytes(true),
+		progressbar.OptionSetTheme(progressbar.Theme{
+			Saucer:        "[green]#[reset]",
+			SaucerHead:    "[green]>[reset]",
+			SaucerPadding: " ",
+			BarStart:      "[",
+			BarEnd:        "]",
+		}),
+		progressbar.OptionOnCompletion(func() {
+			fmt.Fprint(os.Stderr, "\n")
+		}),
+	)
 	var w io.Writer
 	if verifier != nil {
 		w = io.MultiWriter(fd, bar, verifier.H)
