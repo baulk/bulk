@@ -16,7 +16,7 @@ import (
 	"github.com/baulk/bulk/base"
 	"github.com/dsnet/compress/bzip2"
 	"github.com/klauspost/compress/zstd"
-	"github.com/pierrec/lz4/v3"
+	"github.com/pierrec/lz4/v4"
 	"github.com/ulikunitz/xz"
 )
 
