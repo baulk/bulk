@@ -15,8 +15,8 @@ require (
 	github.com/ulikunitz/xz v0.5.8
 	github.com/zeebo/blake3 v0.1.0
 	github.com/zeebo/pcg v1.0.0 // indirect
-	golang.org/x/crypto v0.0.0-20201112155050-0c6587e931a9
+	golang.org/x/crypto v0.0.0-20201117144127-c1f2f97bffc9
 	golang.org/x/net v0.0.0-20201110031124-69a78807bb2b
-	golang.org/x/sys v0.0.0-20201113233024-12cec1faf1ba
+	golang.org/x/sys v0.0.0-20201119102817-f84b799fce68
 	golang.org/x/text v0.3.4
 )
