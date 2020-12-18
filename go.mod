@@ -12,7 +12,7 @@ require (
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db
 	github.com/nwaples/rardecode v1.1.0
 	github.com/pierrec/lz4/v4 v4.1.2
-	github.com/ulikunitz/xz v0.5.8
+	github.com/ulikunitz/xz v0.5.9
 	github.com/zeebo/blake3 v0.1.0
 	github.com/zeebo/pcg v1.0.0 // indirect
 	golang.org/x/crypto v0.0.0-20201124201722-c8d3bf9c5392
