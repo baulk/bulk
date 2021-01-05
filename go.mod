@@ -11,7 +11,7 @@ require (
 	github.com/mattn/go-runewidth v0.0.9
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db
 	github.com/nwaples/rardecode v1.1.0
-	github.com/pierrec/lz4/v4 v4.1.2
+	github.com/pierrec/lz4/v4 v4.1.3
 	github.com/ulikunitz/xz v0.5.9
 	github.com/zeebo/blake3 v0.1.0
 	github.com/zeebo/pcg v1.0.0 // indirect
