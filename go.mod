@@ -19,5 +19,5 @@ require (
 	golang.org/x/net v0.0.0-20201216054612-986b41b23924
 	golang.org/x/sys v0.0.0-20201218084310-7d0127a74742
 	golang.org/x/term v0.0.0-20201210144234-2321bbc49cbf
-	golang.org/x/text v0.3.4
+	golang.org/x/text v0.3.5
 )
