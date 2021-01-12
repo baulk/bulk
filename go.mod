@@ -8,7 +8,7 @@ require (
 	github.com/klauspost/compress v1.11.6
 	github.com/mattn/go-colorable v0.1.8
 	github.com/mattn/go-isatty v0.0.12
-	github.com/mattn/go-runewidth v0.0.9
+	github.com/mattn/go-runewidth v0.0.10
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db
 	github.com/nwaples/rardecode v1.1.0
 	github.com/pierrec/lz4/v4 v4.1.3
