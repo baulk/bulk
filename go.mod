@@ -11,7 +11,7 @@ require (
 	github.com/mattn/go-runewidth v0.0.10
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db
 	github.com/nwaples/rardecode v1.1.0
-	github.com/pierrec/lz4/v4 v4.1.3
+	github.com/pierrec/lz4/v4 v4.1.4
 	github.com/ulikunitz/xz v0.5.10
 	github.com/zeebo/blake3 v0.1.1
 	golang.org/x/crypto v0.0.0-20201217014255-9d1352758620
