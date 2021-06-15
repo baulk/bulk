@@ -5,7 +5,7 @@ go 1.14
 require (
 	github.com/andybalholm/brotli v1.0.3
 	github.com/dsnet/compress v0.0.1
-	github.com/klauspost/compress v1.13.0
+	github.com/klauspost/compress v1.13.1
 	github.com/mattn/go-colorable v0.1.8
 	github.com/mattn/go-isatty v0.0.13
 	github.com/mattn/go-runewidth v0.0.13
