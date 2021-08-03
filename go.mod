@@ -5,6 +5,7 @@ go 1.14
 require (
 	github.com/andybalholm/brotli v1.0.3
 	github.com/dsnet/compress v0.0.1
+	github.com/golang/snappy v0.0.4 // indirect
 	github.com/klauspost/compress v1.13.3
 	github.com/mattn/go-colorable v0.1.8
 	github.com/mattn/go-isatty v0.0.13
@@ -15,9 +16,9 @@ require (
 	github.com/ulikunitz/xz v0.5.10
 	github.com/zeebo/assert v1.3.0 // indirect
 	github.com/zeebo/blake3 v0.2.0
-	golang.org/x/crypto v0.0.0-20210513164829-c07d793c2f9a
-	golang.org/x/net v0.0.0-20210525063256-abc453219eb5
-	golang.org/x/sys v0.0.0-20210525143221-35b2ab0089ea
-	golang.org/x/term v0.0.0-20210503060354-a79de5458b56
+	golang.org/x/crypto v0.0.0-20210711020723-a769d52b0f97
+	golang.org/x/net v0.0.0-20210726213435-c6fcb2dbf985
+	golang.org/x/sys v0.0.0-20210630005230-0f9fa26af87c
+	golang.org/x/term v0.0.0-20210615171337-6886f2dfbf5b
 	golang.org/x/text v0.3.6
 )
