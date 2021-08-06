@@ -5,7 +5,7 @@ import (
 	"os"
 	"path"
 
-	"github.com/baulk/bulk/base"
+	"github.com/baulk/bulk/modules/base"
 )
 
 func main() {

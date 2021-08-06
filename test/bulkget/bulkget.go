@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/baulk/bulk/base"
-	"github.com/baulk/bulk/netutils"
+	"github.com/baulk/bulk/modules/base"
+	"github.com/baulk/bulk/modules/netutils"
 )
 
 func main() {
