@@ -6,7 +6,7 @@ require (
 	github.com/andybalholm/brotli v1.0.3
 	github.com/dsnet/compress v0.0.1
 	github.com/klauspost/compress v1.13.6
-	github.com/mattn/go-colorable v0.1.10
+	github.com/mattn/go-colorable v0.1.11
 	github.com/mattn/go-isatty v0.0.14
 	github.com/mattn/go-runewidth v0.0.13
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db
@@ -17,7 +17,7 @@ require (
 	github.com/zeebo/blake3 v0.2.1
 	golang.org/x/crypto v0.0.0-20210817164053-32db794688a5
 	golang.org/x/net v0.0.0-20210813160813-60bc85c4be6d
-	golang.org/x/sys v0.0.0-20210820121016-41cdb8703e55
+	golang.org/x/sys v0.0.0-20210927094055-39ccf1dd6fa6
 	golang.org/x/term v0.0.0-20210615171337-6886f2dfbf5b
 	golang.org/x/text v0.3.7
 )
