@@ -6,7 +6,7 @@ require (
 	github.com/andybalholm/brotli v1.0.4
 	github.com/dsnet/compress v0.0.1
 	github.com/klauspost/compress v1.13.6
-	github.com/mattn/go-colorable v0.1.11
+	github.com/mattn/go-colorable v0.1.12
 	github.com/mattn/go-isatty v0.0.14
 	github.com/mattn/go-runewidth v0.0.13
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db
