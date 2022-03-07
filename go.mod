@@ -10,7 +10,7 @@ require (
 	github.com/mattn/go-isatty v0.0.14
 	github.com/mattn/go-runewidth v0.0.13
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db
-	github.com/nwaples/rardecode v1.1.2
+	github.com/nwaples/rardecode v1.1.3
 	github.com/pierrec/lz4/v4 v4.1.14
 	github.com/ulikunitz/xz v0.5.10
 	github.com/zeebo/assert v1.3.0 // indirect
