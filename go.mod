@@ -3,7 +3,7 @@ module github.com/baulk/bulk
 go 1.17
 
 require (
-	github.com/andybalholm/brotli v1.0.4
+	github.com/andybalholm/brotli v1.0.5
 	github.com/dsnet/compress v0.0.1
 	github.com/klauspost/compress v1.15.14
 	github.com/mattn/go-colorable v0.1.13
