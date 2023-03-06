@@ -16,9 +16,9 @@ require (
 	github.com/zeebo/assert v1.3.0 // indirect
 	github.com/zeebo/blake3 v0.2.3
 	golang.org/x/crypto v0.0.0-20210817164053-32db794688a5
-	golang.org/x/net v0.0.0-20210813160813-60bc85c4be6d
+	golang.org/x/net v0.8.0
 	golang.org/x/sys v0.6.0
-	golang.org/x/term v0.5.0
+	golang.org/x/term v0.6.0
 	golang.org/x/text v0.8.0
 )
 
