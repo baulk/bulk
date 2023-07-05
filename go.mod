@@ -17,7 +17,7 @@ require (
 	github.com/zeebo/blake3 v0.2.3
 	golang.org/x/crypto v0.10.0
 	golang.org/x/net v0.11.0
-	golang.org/x/sys v0.9.0
+	golang.org/x/sys v0.10.0
 	golang.org/x/term v0.9.0
 	golang.org/x/text v0.10.0
 )
