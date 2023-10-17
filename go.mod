@@ -7,7 +7,7 @@ require (
 	github.com/dsnet/compress v0.0.1
 	github.com/klauspost/compress v1.17.1
 	github.com/mattn/go-colorable v0.1.13
-	github.com/mattn/go-isatty v0.0.19
+	github.com/mattn/go-isatty v0.0.20
 	github.com/mattn/go-runewidth v0.0.15
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db
 	github.com/nwaples/rardecode v1.1.3
