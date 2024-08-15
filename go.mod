@@ -14,7 +14,7 @@ require (
 	github.com/pierrec/lz4/v4 v4.1.21
 	github.com/ulikunitz/xz v0.5.12
 	github.com/zeebo/assert v1.3.0 // indirect
-	github.com/zeebo/blake3 v0.2.3
+	github.com/zeebo/blake3 v0.2.4
 	golang.org/x/crypto v0.26.0
 	golang.org/x/net v0.28.0
 	golang.org/x/sys v0.24.0
